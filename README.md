@@ -1,2 +1,7 @@
 # go-pi-calc
-Calc Pi in several manner
+Calc Pi by mechanic blocks collision count.
+
+```
+go run main.go 5
+Pi=3.141500
+```
