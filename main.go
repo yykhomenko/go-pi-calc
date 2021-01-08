@@ -2,82 +2,42 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math"
+	"os"
+	"strconv"
 )
 
-type Body struct {
+type body struct {
 	m float64 // [kg]
 	v float64 // [m/s]
 }
 
-func (b Body) P() float64 {
+func (b body) p() float64 {
 	return b.m * b.v // [kg*m/s]
 }
 
-func (b *Body) Collision(b2 *Body) {
+func (b *body) collision(b2 *body) {
 	v1 := (2*b2.v*b2.m + b.v*(b.m-b2.m)) / (b.m + b2.m)
-	v2 := (2*b.v*b.m + b2.v*(b2.m-b.m)) / (b.m + b2.m)
+	b2.v = (2*b.v*b.m + b2.v*(b2.m-b.m)) / (b.m + b2.m)
 	b.v = v1
-	b2.v = v2
 }
 
-func (b *Body) WallCollision() {
+func (b *body) wallCollision() {
 	b.v = -b.v
 }
 
-func (b Body) String() string {
-	var prefix, suffix string
-	p := b.P()
-	switch {
-	case p < 0:
-		prefix = "<"
-		suffix = "|"
-	case p > 0:
-		prefix = "|"
-		suffix = ">"
-	default:
-		prefix = "|"
-		suffix = "|"
-	}
-
-	return fmt.Sprintf("%s%.0fkg %fm/s%s", prefix, b.m, b.v, suffix)
-}
-
-func calcPi(d int, debug bool) float64 {
-	b1 := &Body{1, 0}
-	b2 := &Body{math.Pow(100, float64(d-1)), -1}
-
-	if debug {
-		fmt.Println(b1, b2)
-	}
+func calcPi(d int) float64 {
+	b1 := &body{1, 0}
+	b2 := &body{math.Pow(100, float64(d-1)), -1}
 
 	var cnt int
-	var maxSpeed float64
-	for true {
-
-		if maxSpeed < b1.v {
-			maxSpeed = b1.v
-		}
-
-		if b2.v < 0 || b1.v > b2.v {
-			b2.Collision(b1)
-			cnt++
-			if debug {
-				fmt.Printf("%d: %s %s\n", cnt, b1, b2)
-			}
-		} else {
-			if debug {
-				fmt.Printf("max speed of b1 = %fm/s\n", maxSpeed)
-			}
-			break
-		}
-
+	for b2.v < 0 || b1.v > b2.v {
+		b2.collision(b1)
+		cnt++
 		if b1.v < 0 {
-			b1.WallCollision()
+			b1.wallCollision()
 			cnt++
-			if debug {
-				fmt.Printf("%dw: %s %s\n", cnt, b1, b2)
-			}
 		}
 	}
 
@@ -85,5 +45,9 @@ func calcPi(d int, debug bool) float64 {
 }
 
 func main() {
-	fmt.Printf("Pi=%f", calcPi(3, true))
+	digits, err := strconv.Atoi(os.Args[1])
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(calcPi(digits))
 }
