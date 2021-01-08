@@ -37,7 +37,7 @@ func (b Body) String() string {
 		suffix = "|"
 	}
 
-	return fmt.Sprintf("%s%.0fkg %.0fm/s%s", prefix, b.m, b.v, suffix)
+	return fmt.Sprintf("%s%.0fkg %.2fm/s%s", prefix, b.m, b.v, suffix)
 }
 
 func main() {
@@ -48,22 +48,22 @@ func main() {
 
 	var cnt int
 	for true {
-		if b2.P() < 0 || b1.P() > b2.P() {
+		if b2.v < 0 || b1.v > b2.v {
 			b2.Collision(b1)
-			fmt.Printf("%s %s\n", b1, b2)
 			cnt++
+			fmt.Printf("%d: %s %s\n", cnt, b1, b2)
 		} else {
 			break
 		}
 
-		if b2.P() > 0 {
+		if b2.v > 0 {
 			fmt.Println("-------------------------------------------")
 		}
 
-		if b1.P() < 0 {
+		if b1.v < 0 {
 			b1.WallCollision()
-			fmt.Printf("%s %s\n", b1, b2)
 			cnt++
+			fmt.Printf("%dw: %s %s\n", cnt, b1, b2)
 		}
 	}
 
